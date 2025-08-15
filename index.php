@@ -335,6 +335,26 @@
         padding: 36px 0 80px;
         color: var(--muted);
       }
+
+      #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); /* dark shade */
+        backdrop-filter: blur(5px);      /* blur background */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+
+      #overlay img {
+          width: 80px; /* adjust loader size */
+          height: 80px;
+      }
+
     </style>
   </head>
   <body>
@@ -459,6 +479,10 @@
         </div>
       </section>
     </main>
+    
+    <div id="overlay" style="display:none;">
+        <img src="assets/loading1.gif" alt="Loading...">
+    </div>
 
     <footer class="container">
       <footer>
@@ -469,10 +493,15 @@
     <div class="player">
       <div class="container player-inner">
         <div class="track">
-          <img src="https://picsum.photos/seed/melody/96" alt="Album art" />
+          <img src="https://picsum.photos/seed/melody/96" alt="Album art" id="curr_img" />
           <div>
-            <div><strong>Midnight Drive</strong></div>
-            <div class="subtitle">Neon Dusk • 3:42</div>
+            <div><strong  id="curr_music">Midnight Drive</strong></div>
+            <div class="subtitle"><span id="curr_artist">Neon Dusk</span> • <span id="curr_duration"></span></div>
+            <div style="display: none;">
+              <audio controls id="player">
+                <source src="" type="audio/mpeg" id="curr_play">
+              </audio>
+            </div>
           </div>
         </div>
         <div class="controls">
@@ -508,13 +537,16 @@
         var data = JSON.parse(response);
         var htmlReponse = "";
         for (let i=0; i < data.length; i++){
+          var id = data[i].id;
           var name = data[i].name;
           var image = data[i].image;
           var artist = data[i].artist;
           var duration = data[i].duration;
           duration = duration + "sec";
+          var musicJson = data[i];
+          musicJson = JSON.stringify(musicJson);
           
-          htmlReponse += "<article class='card'> <div class='thumb'><img src='"+image+"' alt='logo' style='width: 100%;height: auto;'></div> <div class='card-body'> <strong>"+name+"</strong> <div class='subtitle'>I"+artist+"</div> </div> </article>";
+          htmlReponse += "<article class='card' onclick='playMusic("+id+")'> <div class='thumb'><img src='"+image+"' alt='logo' style='width: 100%;height: auto;'></div> <div class='card-body'> <strong>"+name+"</strong> <div class='subtitle'>I"+artist+"</div><input type='hidden' id='musicJson"+id+"' value='"+musicJson+"'> </div> </article>";
         }
         $('#loadInit').html(htmlReponse);
       }
@@ -544,6 +576,24 @@
         }
         $('#loadInitArtist').html(htmlReponse);
       }
+    });
+  }
+
+  function playMusic(id) {
+    var song_details = $('#musicJson'+ id).val();
+    song_details = JSON.parse(song_details);
+    $('#curr_img').attr("src", song_details.image);
+    $('#curr_music').html(song_details.name);
+    $('#curr_artist').html(song_details.artist);
+    $('#curr_duration').html(song_details.duration);
+    $('#curr_play').attr("src", song_details.audio);
+
+    $("#overlay").show();
+    $("#player")[0].load();
+    $("#player")[0].play();
+    
+    $("#player").off("canplay").on("canplay", function() {
+        $("#overlay").hide();
     });
   }
 </script>
