@@ -208,7 +208,7 @@
       .grid {
         display: grid;
         grid-auto-flow: column;
-        grid-auto-columns: 16%;
+        grid-auto-columns: 20%;
         gap: 16px;
         overflow-x: auto;
         padding-bottom: 10px;
@@ -217,17 +217,17 @@
       }
       @media (max-width: 1200px) {
         .grid {
-          grid-template-columns: repeat(4, 1fr);
+          grid-auto-columns: 25%;
         }
       }
       @media (max-width: 900px) {
         .grid {
-          grid-template-columns: repeat(3, 1fr);
+          grid-auto-columns: 35%;
         }
       }
       @media (max-width: 620px) {
         .grid {
-          grid-template-columns: repeat(2, 1fr);
+          grid-auto-columns: 50%;
         }
       }
       .card {
