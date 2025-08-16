@@ -508,13 +508,16 @@
               <audio controls id="player">
                 <source src="http://localhost:8080/cdn/assets/Chirapunji/audio.mp3" type="audio/mpeg" id="curr_play">
               </audio>
+              <input type="hidden" id="completeJson">
+              <input type="hidden" id="next_index">
+              <input type="hidden" id="prev_index">
             </div>
           </div>
         </div>
         <div class="controls">
-          <button aria-label="Previous">⏮</button>
+          <button aria-label="Previous"onclick="playNext('prev')" id="prev_song">⏮</button>
           <button aria-label="Play/Pause" id="play_pause" onclick="startMusic('play')">▶</button>
-          <button aria-label="Next">⏭</button>
+          <button aria-label="Next" onclick="playNext('next')">⏭</button>
         </div>
         <div class="progress">
           <small id="curr_time">0:00</small>
@@ -576,9 +579,12 @@
       cache: false,
       success: function (response) {
         var data = JSON.parse(response);
+        var musicOrderJson = JSON.stringify(musicJson);
+        $('#completeJson').val(musicOrderJson);
+        
         var htmlReponse = "";
         for (let i=0; i < data.length; i++){
-          var id = data[i].id;
+          var index = data[i].index;
           var name = data[i].name;
           var image = data[i].image;
           var artist = data[i].artist;
@@ -587,7 +593,7 @@
           var musicJson = data[i];
           musicJson = JSON.stringify(musicJson);
           
-          htmlReponse += "<article class='card' onclick='playMusic("+id+")'> <div class='thumb'><img src='"+image+"' alt='logo' style='width: 100%;height: auto;'></div> <div class='card-body'> <strong>"+name+"</strong> <div class='subtitle'>I"+artist+"</div><input type='hidden' id='musicJson"+id+"' value='"+musicJson+"'> </div> </article>";
+          htmlReponse += "<article class='card' onclick='playMusic("+index+")'> <div class='thumb'><img src='"+image+"' alt='logo' style='width: 100%;height: auto;'></div> <div class='card-body'> <strong>"+name+"</strong> <div class='subtitle'>I"+artist+"</div><input type='hidden' id='musicJson"+index+"' value='"+musicJson+"'> </div> </article>";
         }
         $('#loadInit').html(htmlReponse);
       }
@@ -631,6 +637,19 @@
     $('#curr_duration').html(duration);
     $('#end_time').html(duration);
     $('#curr_play').attr("src", song_details.audio);
+    var prev_index = $('#prev_index').val(song_details.index - 1);
+    if(song_details.index - 1 == 0){
+      $('#prev_song').css({
+          cursor: "not-allowed",
+          opacity: "0.5"
+      });
+    }else{
+      $('#prev_song').css({
+          cursor: "pointer",
+          opacity: "1"
+      });
+    }
+    $('#next_index').val(song_details.index + 1);
 
     $("#overlay").show();
     $("#player")[0].load();
@@ -666,6 +685,17 @@
     let min = Math.floor(seconds / 60);
     let sec = seconds % 60;
     return min + ":" + (sec < 10 ? "0" + sec : sec);
+  }
+
+  function playNext(status) {
+    var status = status;
+    if(status == "next"){
+      var id = $('#next_index').val();
+      playMusic(id);
+    }else{
+      var id = $('#prev_index').val();
+      playMusic(id);
+    }
   }
 </script>
 
