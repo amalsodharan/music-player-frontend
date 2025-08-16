@@ -316,6 +316,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        cursor: pointer;
       }
       .range {
         flex: 1;
@@ -325,10 +326,16 @@
         position: relative;
         overflow: hidden;
       }
-      .fill {
+      /* .fill {
         position: absolute;
         inset: 0 40% 0 0;
         background: linear-gradient(90deg, var(--brand), var(--brand-2));
+      } */
+      .fill {
+          position: absolute;
+          inset: 0 100% 0 0; /* starts at 0% progress */
+          background: linear-gradient(90deg, var(--brand), var(--brand-2));
+          transition: inset 0.1s linear; /* smooth progress */
       }
       /* --- footer --- */
       footer {
@@ -493,37 +500,71 @@
     <div class="player">
       <div class="container player-inner">
         <div class="track">
-          <img src="https://picsum.photos/seed/melody/96" alt="Album art" id="curr_img" />
+          <img src="https://usercontent.jamendo.com?type=album&id=144705&width=300&trackid=1204669" alt="Album art" id="curr_img" />
           <div>
-            <div><strong  id="curr_music">Midnight Drive</strong></div>
-            <div class="subtitle"><span id="curr_artist">Neon Dusk</span> • <span id="curr_duration"></span></div>
+            <div><strong  id="curr_music">What Is Love</strong></div>
+            <div class="subtitle"><span id="curr_artist">Melanie Ungar</span> • <span id="curr_duration">2:12</span></div>
             <div style="display: none;">
               <audio controls id="player">
-                <source src="" type="audio/mpeg" id="curr_play">
+                <source src="https://prod-1.storage.jamendo.com/?trackid=1204669&format=mp32&from=kPWpcG%2F9SDBv2UkHGmUIlA%3D%3D%7Ckwg9Di0tmucSjPc1XxiQlA%3D%3D" type="audio/mpeg" id="curr_play">
               </audio>
             </div>
           </div>
         </div>
         <div class="controls">
           <button aria-label="Previous">⏮</button>
-          <button aria-label="Play/Pause">⏯</button>
+          <button aria-label="Play/Pause" id="play_pause" onclick="startMusic('play')">▶</button>
           <button aria-label="Next">⏭</button>
         </div>
         <div class="progress">
-          <small>1:08</small>
+          <small id="curr_time">0:00</small>
           <div class="range" aria-hidden="true"><span class="fill"></span></div>
-          <small>3:42</small>
+          <small id="end_time">3:42</small>
         </div>
       </div>
     </div>
 
-    <script>
+  <script>
   document.getElementById("year").textContent = new Date().getFullYear();
 
   $(document).ready(function () {
     initApp();
     initArtist();
   });
+
+  const player = document.getElementById("player");
+  const range = document.querySelector(".range");
+  const fill = document.querySelector(".fill");
+  const currTime = document.getElementById("curr_time");
+
+  player.addEventListener("timeupdate", () => {
+    const percent = (player.currentTime / player.duration) * 100;
+    fill.style.width = percent + "%";
+
+    let cleanTime = Math.floor(player.currentTime);
+    currTime.textContent = formatTime(cleanTime);
+  });
+
+  range.addEventListener("mousedown", (e) => {
+    const rect = range.getBoundingClientRect();
+    const updateTime = (clientX) => {
+      const clickX = clientX - rect.left;
+      const percent = Math.max(0, Math.min(1, clickX / rect.width));
+      player.currentTime = percent * player.duration;
+    };
+
+    updateTime(e.clientX);
+
+    const move = (ev) => updateTime(ev.clientX);
+    const up = () => {
+      document.removeEventListener("mousemove", move);
+      document.removeEventListener("mouseup", up);
+    };
+
+    document.addEventListener("mousemove", move);
+    document.addEventListener("mouseup", up);
+  });
+
 
   function initApp() {
     $.ajax({
@@ -542,7 +583,7 @@
           var image = data[i].image;
           var artist = data[i].artist;
           var duration = data[i].duration;
-          duration = duration + "sec";
+          duration = formatTime(duration);
           var musicJson = data[i];
           musicJson = JSON.stringify(musicJson);
           
@@ -585,16 +626,46 @@
     $('#curr_img').attr("src", song_details.image);
     $('#curr_music').html(song_details.name);
     $('#curr_artist').html(song_details.artist);
-    $('#curr_duration').html(song_details.duration);
+    var duration = song_details.duration;
+    duration = formatTime(duration);
+    $('#curr_duration').html(duration);
+    $('#end_time').html(duration);
     $('#curr_play').attr("src", song_details.audio);
 
     $("#overlay").show();
     $("#player")[0].load();
     $("#player")[0].play();
+    $('#play_pause').html("⏸");
+    $("#play_pause").attr("onclick", "startMusic('pause')");
     
     $("#player").off("canplay").on("canplay", function() {
         $("#overlay").hide();
     });
+  }
+
+  function startMusic(status) {
+    var status = status;
+    $("#overlay").show();
+    if(status == "play"){
+      $('#play_pause').html("⏸");
+      
+      $("#player")[0].play();
+      $("#overlay").hide();
+
+      $("#play_pause").attr("onclick", "startMusic('pause')");
+    }else {
+      $('#play_pause').html("▶");
+
+      $("#player")[0].pause();
+      $("#overlay").hide();
+      $("#play_pause").attr("onclick", "startMusic('play')");
+    }
+  }
+
+  function formatTime(seconds) {
+    let min = Math.floor(seconds / 60);
+    let sec = seconds % 60;
+    return min + ":" + (sec < 10 ? "0" + sec : sec);
   }
 </script>
 
