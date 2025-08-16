@@ -500,13 +500,13 @@
     <div class="player">
       <div class="container player-inner">
         <div class="track">
-          <img src="https://usercontent.jamendo.com?type=album&id=144705&width=300&trackid=1204669" alt="Album art" id="curr_img" />
+          <img src="http://localhost:8080/cdn/assets/Chirapunji/image.jpeg" alt="Album art" id="curr_img" />
           <div>
-            <div><strong  id="curr_music">What Is Love</strong></div>
-            <div class="subtitle"><span id="curr_artist">Melanie Ungar</span> • <span id="curr_duration">2:12</span></div>
+            <div><strong  id="curr_music">Chirapunji</strong></div>
+            <div class="subtitle"><span id="curr_artist">Hanan Shah</span> • <span id="curr_duration">2:41</span></div>
             <div style="display: none;">
               <audio controls id="player">
-                <source src="https://prod-1.storage.jamendo.com/?trackid=1204669&format=mp32&from=kPWpcG%2F9SDBv2UkHGmUIlA%3D%3D%7Ckwg9Di0tmucSjPc1XxiQlA%3D%3D" type="audio/mpeg" id="curr_play">
+                <source src="http://localhost:8080/cdn/assets/Chirapunji/audio.mp3" type="audio/mpeg" id="curr_play">
               </audio>
             </div>
           </div>
@@ -519,7 +519,7 @@
         <div class="progress">
           <small id="curr_time">0:00</small>
           <div class="range" aria-hidden="true"><span class="fill"></span></div>
-          <small id="end_time">3:42</small>
+          <small id="end_time">2:41</small>
         </div>
       </div>
     </div>
